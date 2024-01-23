@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken')
 const session = require('express-session')
 // const adminschema = require('./schema/adminschema')
 const userschema = require('./schema/userschema')
+const balanceSchema = require('./schema/balanceSchema')
 
 const adminkey = process.env.ADMINKEY
 const secretkey = process.env.SECRETKEY
@@ -60,6 +61,11 @@ app.get('/terms', function (req, res) {
   res.render('terms');
 });
 
+app.get('/dashboard',protectRoute, function (req, res) {
+  res.redirect('https://dashboard.alpeada.com/')
+});
+
+
 app.post('/signup', async (req,res)=>{
     const details = req.body
     const password11 = details.password11
@@ -101,16 +107,17 @@ app.post('/signup', async (req,res)=>{
             })
             await user.save()
 
-            // const balance = new balanceSchema({
-            //     name: `${details.firstName} ${details.lastName}`,
-            //     email: details.email,
-            //     balance: 0.00,
-            //     ROI: 0.00,
-            //     bonus: 0.00
-            // })
-            // await balance.save()
+            const balance = new balanceSchema({
+                name: `${details.firstName} ${details.lastName}`,
+                email: details.email,
+                balance: 0.00,
+                deposit: 0.00,
+                withdrawal: 0.00,
+                profit: 0.00
+            })
+            await balance.save()
 
-            console.log(user)
+            // console.log(user)
             req.flash('success', 'Sign Up Successful, Please Login')
             res.redirect('/signup')
         }catch(err){
@@ -142,17 +149,17 @@ app.post('/login', (req,res)=>{
                             }
                         }
                         const token = jwt.sign(payload, secretkey,{
-                            expiresIn: '3600s'
+                            expiresIn: '7200s'
                         })
     
                         res.cookie('logintoken', token, {
                             httpOnly: false
                         })
     
-                        // res.redirect('/dashboard')
-                        console.log('Login Sucessful')
-                        req.flash('success', 'Login Up Successful')
-                        res.redirect('/signup')
+                        res.redirect('/dashboard')
+                        // console.log('Login Sucessful')
+                        // req.flash('success', 'Login Up Successful')
+                        // res.redirect('/signup')
                     } else {
                         req.flash('danger', 'Incorrect Password, Please Try Again!')
                         res.redirect('/signup')
@@ -164,6 +171,22 @@ app.post('/login', (req,res)=>{
         console.log(err)
     })
 })
+
+function protectRoute(req, res, next){
+    const token = req.cookies.logintoken
+    try{
+        const user = jwt.verify(token, secretkey)
+  
+        req.user = user
+        // console.log(req.user)
+        next()
+    }
+    catch(err){
+        res.clearCookie('logintoken')
+        req.flash('danger', 'Session Expired, Please Sign In')
+        return res.redirect('/signup')
+    }
+  }
 
 const port = process.env.PORT || 5000
 
