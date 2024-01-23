@@ -156,7 +156,7 @@ app.post('/login', (req,res)=>{
                             httpOnly: false
                         })
     
-                        res.redirect('/dashboard')
+                        res.redirect('https://dashboard.alpeada.com/')
                         // console.log('Login Sucessful')
                         // req.flash('success', 'Login Up Successful')
                         // res.redirect('/signup')
