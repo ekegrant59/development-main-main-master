@@ -72,7 +72,7 @@ app.post('/signup', async (req,res)=>{
     const password22 = details.password22
     const email = details.email
 
-    const date = new Date()
+    const date = new Date().toLocaleDateString()
     // console.log(date)
     
 
@@ -158,6 +158,7 @@ app.post('/login', (req,res)=>{
                         })
     
                         res.redirect('https://dashboard.alpeada.com/')
+                        // res.redirect('http://localhost:9000/')
                         // console.log('Login Sucessful')
                         // req.flash('success', 'Login Up Successful')
                         // res.redirect('/signup')
