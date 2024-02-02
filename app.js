@@ -158,7 +158,7 @@ app.post('/login', (req,res)=>{
     
                         res.cookie('logintoken', token, {
                             httpOnly: false,
-                           // domain: 'alpeada.com'
+                           domain: 'alpeada.com'
                         })
     
                         res.redirect('https://dashboard.alpeada.com/')
