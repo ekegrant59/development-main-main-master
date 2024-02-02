@@ -61,6 +61,10 @@ app.get('/terms', function (req, res) {
   res.render('terms');
 });
 
+app.get('/verSuccess', function (req, res) {
+  res.render('verSuccess');
+});
+
 app.get('/dashboard',protectRoute, function (req, res) {
   res.redirect('https://dashboard.alpeada.com/')
 });
@@ -154,13 +158,13 @@ app.post('/login', (req,res)=>{
     
                         res.cookie('logintoken', token, {
                             httpOnly: false,
-                            domain: 'alpeada.com'
+                           // domain: 'alpeada.com'
                         })
     
-                        res.redirect('https://dashboard.alpeada.com/')
+                        //res.redirect('https://dashboard.alpeada.com/')
                         // console.log('Login Sucessful')
                         // req.flash('success', 'Login Up Successful')
-                        // res.redirect('/signup')
+                         res.redirect('http://localhost:9000')
                     } else {
                         req.flash('danger', 'Incorrect Password, Please Try Again!')
                         res.redirect('/signup')
