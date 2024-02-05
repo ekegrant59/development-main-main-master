@@ -10,6 +10,10 @@ const session = require('express-session')
 const userschema = require('./schema/userschema')
 const balanceSchema = require('./schema/balanceSchema')
 
+const hbs = require('nodemailer-express-handlebars')
+const nodemailer = require('nodemailer')
+const path = require('path')
+
 const adminkey = process.env.ADMINKEY
 const secretkey = process.env.SECRETKEY
 
@@ -41,6 +45,33 @@ app.use(function (req, res, next) {
   next();
 });
 
+var transporter = nodemailer.createTransport(
+    {
+        host: process.env.EMAIL_HOST,
+        port: 587,
+        secure: false,
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASSWORD
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    }
+);
+
+// point to the template folder
+const handlebarOptions = {
+    viewEngine: {
+        partialsDir: path.resolve('./views/'),
+        defaultLayout: false,
+    },
+    viewPath: path.resolve('./views/'),
+};
+
+// use a template file with nodemailer
+transporter.use('compile', hbs(handlebarOptions))
+
 app.get('/', function(req,res){ 
     res.render('home')
 })
@@ -54,21 +85,78 @@ app.get('/pricing', function(req,res){
 })
 
 app.get('/signup', function(req,res){ 
-    res.render('signup')
+    let refferer = ""
+
+    res.render('signup', {referrer: refferer})
 })
 
 app.get('/terms', function (req, res) {
   res.render('terms');
 });
 
-app.get('/verSuccess', function (req, res) {
-  res.render('verSuccess');
-});
 
 app.get('/dashboard',protectRoute, function (req, res) {
   res.redirect('https://dashboard.alpeada.com/')
 });
 
+app.get('/invite/:id', (req,res)=>{
+    let refferer = req.params.id
+
+    res.render('signup', {referrer: refferer})
+})
+
+app.get('/verify/:id', async function(req,res){ 
+    let id = req.params.id
+    verifiedemail(id)
+    const theuser = await userschema.findOne({_id: id})
+    const name = theuser.firstName + ' ' +  theuser.lastName
+    res.render('verSuccess', {name: name})
+})
+
+async function verifiedemail(id){
+    const theuser = await userschema.findOne({_id: id})
+    const name = theuser.firstName + ' ' +  theuser.lastName
+    const email = theuser.email
+
+    const mailOptions = {
+        from: '"Alpeada" support@alpeada.com', // sender address
+        template: "verifiedemail", // the name of the template file, i.e., email.handlebars
+        to: `${email}`,
+        subject: 'Successful Verification - Your Trading Account is Ready!',
+        context: {
+          name: name,
+        },
+      };
+      try {
+        await transporter.sendMail(mailOptions);
+      } catch (error) {
+        console.log(`Nodemailer error sending email to ${email}`, error);
+      }
+}
+
+async function verifyemail(email){
+    const theuser = await userschema.findOne({email: email})
+    const id = theuser.id
+    const name = theuser.firstName + ' ' +  theuser.lastName
+
+    // console.log(id, email, name)
+
+    const mailOptions = {
+        from: '"Alpeada" support@alpeada.com', // sender address
+        template: "email", // the name of the template file, i.e., email.handlebars
+        to: `${email}`,
+        subject: 'Please Verify Your Registration on Alpeada',
+        context: {
+          name: name,
+          id: id
+        },
+      };
+      try {
+        await transporter.sendMail(mailOptions);
+      } catch (error) {
+        console.log(`Nodemailer error sending email to ${email}`, error);
+      }
+}
 
 app.post('/signup', async (req,res)=>{
     const details = req.body
@@ -107,7 +195,8 @@ app.post('/signup', async (req,res)=>{
                 encryptedpassword: hashedPassword,
                 password: password11,
                 number: number,
-                date: date
+                date: date,
+                refferal: details.refferal
             })
             await user.save()
 
@@ -120,9 +209,10 @@ app.post('/signup', async (req,res)=>{
                 profit: 0.00
             })
             await balance.save()
+            verifyemail(email)
 
             // console.log(user)
-            req.flash('success', 'Sign Up Successful, Please Login')
+            req.flash('success', 'Sign Up Successfully, Verification Link Sent To Your Email!')
             res.redirect('/signup')
         }catch(err){
             console.log(err)
