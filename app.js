@@ -206,7 +206,8 @@ app.post('/signup', async (req,res)=>{
                 balance: 0.00,
                 deposit: 0.00,
                 withdrawal: 0.00,
-                profit: 0.00
+                profit: 0.00,
+                bot: false
             })
             await balance.save()
             verifyemail(email)
