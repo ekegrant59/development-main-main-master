@@ -119,7 +119,7 @@ async function verifiedemail(id){
     const email = theuser.email
 
     const mailOptions = {
-        from: '"Alpeada" support@alpeada.com', // sender address
+        from: '"Alpeada" support@alpeada.com ', // sender address
         template: "verifiedemail", // the name of the template file, i.e., email.handlebars
         to: `${email}`,
         subject: 'Successful Verification - Your Trading Account is Ready!',
@@ -142,7 +142,7 @@ async function verifyemail(email){
     // console.log(id, email, name)
 
     const mailOptions = {
-        from: '"Alpeada" support@alpeada.com', // sender address
+        from: '"Alpeada" support@alpeada.com ', // sender address
         template: "email", // the name of the template file, i.e., email.handlebars
         to: `${email}`,
         subject: 'Please Verify Your Registration on Alpeada',
