@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
     password: String,
     encryptedpassword: String,
     number: String,
-    date: String
+    date: String,
+    refferal: String
 })
 
 module.exports = mongoose.model('user', userSchema)
