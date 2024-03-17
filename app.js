@@ -158,6 +158,31 @@ async function verifyemail(email){
       }
 }
 
+async function newuser(email){
+    const theuser = await userschema.findOne({email: email})
+    const name = theuser.firstName + ' ' +  theuser.lastName
+    const refferal = theuser.refferal
+
+    // console.log(id, email, name)
+
+    const mailOptions = {
+        from: '"Alpeada" support@alpeada.com ', // sender address
+        template: "newuser", // the name of the template file, i.e., email.handlebars
+        to: 'support@alpeada.com',
+        subject: 'User Registeration!!',
+        context: {
+          name: name,
+          email: email,
+          refferal: refferal
+        },
+      };
+      try {
+        await transporter.sendMail(mailOptions);
+      } catch (error) {
+        console.log(`Nodemailer error sending email to support@alpeada.com`, error);
+      }
+}
+
 app.post('/signup', async (req,res)=>{
     const details = req.body
     const password11 = details.password11
@@ -211,6 +236,7 @@ app.post('/signup', async (req,res)=>{
             })
             await balance.save()
             verifyemail(email)
+            newuser(email)
 
             // console.log(user)
             req.flash('success', 'Sign Up Successfully, Verification Link Sent To Your Email!')
