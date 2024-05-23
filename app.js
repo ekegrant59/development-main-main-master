@@ -279,9 +279,9 @@ app.post('/login', (req,res)=>{
                         })
     
                         res.redirect('https://dashboard.alpeada.com/')
-                        console.log('Login Sucessful')
-                        req.flash('success', 'Login Up Successful')
-                         res.redirect('http://localhost:9000/')
+                        // console.log('Login Sucessful')
+                        // req.flash('success', 'Login Up Successful')
+                        //  res.redirect('http://localhost:9000/')
                     } else {
                         req.flash('danger', 'Incorrect Password, Please Try Again!')
                         res.redirect('/signup')
