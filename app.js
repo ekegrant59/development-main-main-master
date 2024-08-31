@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken')
 const session = require('express-session')
+const axios = require('axios');
 // const adminschema = require('./schema/adminschema')
 const userschema = require('./schema/userschema')
 const balanceSchema = require('./schema/balanceSchema')
@@ -16,6 +17,7 @@ const path = require('path')
 
 const adminkey = process.env.ADMINKEY
 const secretkey = process.env.SECRETKEY
+const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA
 
 const mongodb = process.env.MONGODB
 mongoose.connect(mongodb)
@@ -184,29 +186,48 @@ async function newuser(email){
 }
 
 app.post('/signup', async (req,res)=>{
-    const details = req.body
+    const { 'g-recaptcha-response':captcha , ...details } = req.body
     const password11 = details.password11
     const password22 = details.password22
     const email = details.email
+    
 
     const date = new Date().toLocaleDateString()
     // console.log(date)
     
+    if (!captcha) {
+        req.flash('danger', 'Captcha is required')
+        res.redirect('/signup')
+    }
 
-    userschema.findOne({email: email}, (err, details)=>{
-        if(details){
-            req.flash('danger', 'This Email Has Already Been Used')
+    const verificationURL = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET_KEY}&response=${captcha}`;
+
+    try {
+        const response = await axios.post(verificationURL);
+        const { success } = response.data;
+    
+        if (!success) {
+            req.flash('danger', 'Captcha verification failed')
             res.redirect('/signup')
-        }else{
-            if ( password11 != password22){
-                req.flash('danger', 'Your Passwords Do Not Match')
-                res.redirect('/signup')
-            }else {
-                registerUser()
-            }
-        } 
-    })
+        } else {
+            userschema.findOne({email: email}, (err, details)=>{
+                if(details){
+                    req.flash('danger', 'This Email Has Already Been Used')
+                    res.redirect('/signup')
+                }else{
+                    if ( password11 != password22){
+                        req.flash('danger', 'Your Passwords Do Not Match')
+                        res.redirect('/signup')
+                    }else {
+                        registerUser()
+                    }
+                } 
+            })
+        }   
 
+      } catch (error) {
+        console.error('Error verifying captcha:', error);
+      }
 
     async function registerUser(){
         const salt = await bcrypt.genSalt(10)
