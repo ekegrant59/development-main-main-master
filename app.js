@@ -170,7 +170,7 @@ async function newuser(email){
     const mailOptions = {
         from: '"Alpeada" support@alpeada.com ', // sender address
         template: "newuser", // the name of the template file, i.e., email.handlebars
-        to: 'support@alpeada.com',
+        to: 'math-gray-unequal@duck.com',
         subject: 'User Registeration!!',
         context: {
           name: name,

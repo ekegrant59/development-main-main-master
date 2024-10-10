@@ -749,6 +749,10 @@ video {
   margin-bottom: 1.5rem;
 }
 
+.mb-auto {
+  margin-bottom: auto;
+}
+
 .me-3 {
   margin-inline-end: 0.75rem;
 }
@@ -861,6 +865,10 @@ video {
   height: 100vh;
 }
 
+.max-h-\[125px\] {
+  max-height: 125px;
+}
+
 .w-10 {
   width: 2.5rem;
 }
@@ -903,10 +911,6 @@ video {
 
 .w-\[50vw\] {
   width: 50vw;
-}
-
-.w-\[70\%\] {
-  width: 70%;
 }
 
 .w-\[70px\] {
@@ -1558,6 +1562,10 @@ video {
 
 .pb-2\.5 {
   padding-bottom: 0.625rem;
+}
+
+.pb-4 {
+  padding-bottom: 1rem;
 }
 
 .pb-\[-3em\] {
