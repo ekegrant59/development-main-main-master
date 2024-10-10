@@ -190,6 +190,7 @@ app.post('/signup', async (req,res)=>{
     const password11 = details.password11
     const password22 = details.password22
     const email = details.email
+    console.log(req.body)
     
 
     const date = new Date().toLocaleDateString()
