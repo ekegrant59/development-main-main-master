@@ -190,7 +190,6 @@ app.post('/signup', async (req,res)=>{
     const password11 = details.password11
     const password22 = details.password22
     const email = details.email
-    console.log(req.body)
     
 
     const date = new Date().toLocaleDateString()
@@ -206,7 +205,6 @@ app.post('/signup', async (req,res)=>{
     try {
         const response = await axios.post(verificationURL);
         const { success } = response.data;
-        console.log(response.data)
     
         if (!success) {
             req.flash('danger', 'Captcha verification failed')
